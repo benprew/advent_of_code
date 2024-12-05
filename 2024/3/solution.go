@@ -60,13 +60,11 @@ func tokenize(input string) []Token {
 	matches := re.FindAllStringSubmatchIndex(input, -1)
 
 	for _, match := range matches {
-		if match[2] == -1 && match[4] == -1 { // do() or don't()
-			tokenValue := input[match[0]:match[1]]
-			if tokenValue == "do()" {
-				tokens = append(tokens, Token{Type: "DO", Value: "do()"})
-			} else if tokenValue == "don't()" {
-				tokens = append(tokens, Token{Type: "DONT", Value: "don't()"})
-			}
+		tokenValue := input[match[0]:match[1]]
+		if tokenValue == "do()" {
+			tokens = append(tokens, Token{Type: "DO", Value: "do()"})
+		} else if tokenValue == "don't()" {
+			tokens = append(tokens, Token{Type: "DONT", Value: "don't()"})
 		} else { // mult(x,y)
 			x, err1 := strconv.Atoi(input[match[2]:match[3]])
 			y, err2 := strconv.Atoi(input[match[4]:match[5]])
