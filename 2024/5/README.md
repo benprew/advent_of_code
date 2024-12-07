@@ -4,5 +4,5 @@ I did this because I didn't realize that for part 2 I only needed to include the
 
 This took me a really long time, like for real.
 
-Part 1 - 18 minutes
-Part 2 - 4hrs 40 minutes
+- Part 1 - 18 minutes
+- Part 2 - 4hrs 40 minutes
