@@ -79,7 +79,7 @@ func solve(maze [][]rune) int {
 		visited[Step{path.point, path.dir}] = path.cost
 
 		if path.point == end {
-			fmt.Println("Found end")
+			// fmt.Println("Found end")
 			if lowestCost == -1 || path.cost < lowestCost {
 				lowestCost = path.cost
 			}
@@ -124,7 +124,6 @@ func solve2(maze [][]rune) int {
 		visited[Step{path.point, path.dir}] = path.cost
 
 		if path.point == end {
-			// fmt.Println("Found end: ", path.cost)
 			if path.cost == lowestCost {
 				fmt.Println("Adding path", path.cost)
 				solutions = append(solutions, path)
@@ -135,6 +134,7 @@ func solve2(maze [][]rune) int {
 			}
 		}
 
+		// add new directions
 		for _, d := range []int{-1, 0, 1} {
 			direction := Direction((int(path.dir) + d) % 4)
 			if direction == -1 {
@@ -144,8 +144,11 @@ func solve2(maze [][]rune) int {
 			if maze[point.y][point.x] == WALL {
 				continue
 			}
-			newSteps := append(path.steps, path.point)
+			newSteps := make([]Point, len(path.steps)+1)
+			copy(newSteps, path.steps)
+			newSteps[len(path.steps)] = point
 			newPath := Path2{point, direction, path.cost + 1, newSteps}
+
 			if d != 0 {
 				newPath.cost += 1000
 			}
@@ -157,7 +160,6 @@ func solve2(maze [][]rune) int {
 }
 
 func printGridPaths(maze [][]rune, solutions []Path2) {
-
 	for _, path := range solutions {
 		for _, s := range path.steps {
 			if maze[s.y][s.x] == WALL {
