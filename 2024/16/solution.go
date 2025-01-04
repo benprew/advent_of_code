@@ -32,6 +32,13 @@ type Path struct {
 	steps int
 }
 
+type Path2 struct {
+	point Point
+	dir   Direction
+	cost  int
+	steps []Point
+}
+
 const START = 'S'
 const END = 'E'
 const WALL = '#'
@@ -51,24 +58,18 @@ func main() {
 	maze := parse(file)
 
 	fmt.Println("Part 1:", solve(maze))
-	// fmt.Println("Part 1:", solve2(grid, instructions))
+	fmt.Println("Part 2:", solve2(maze))
 }
 
 func solve(maze [][]rune) int {
 	visited := make(map[Step]int, 0)
 	lowestCost := -1
-	depth := 0
 	start, end := findStartEnd(maze)
 	queue := []Path{{start, EAST, 0, 0}}
 
 	for len(queue) > 0 {
 		path := queue[0]
 		queue = queue[1:]
-
-		if path.steps > depth {
-			depth = path.steps
-			fmt.Println("Depth:", depth)
-		}
 
 		prevCost, ok := visited[Step{path.point, path.dir}]
 		if ok && prevCost < path.cost {
@@ -104,8 +105,80 @@ func solve(maze [][]rune) int {
 }
 
 // 122492 shortest path cost
-func solve2(maze [][]rune) (sum int) {
-	return
+func solve2(maze [][]rune) int {
+	visited := make(map[Step]int, 0)
+	lowestCost := -1
+	solutions := []Path2{}
+	start, end := findStartEnd(maze)
+	queue := []Path2{{start, EAST, 0, []Point{start}}}
+
+	for len(queue) > 0 {
+		path := queue[0]
+		queue = queue[1:]
+
+		prevCost, ok := visited[Step{path.point, path.dir}]
+		if ok && prevCost < path.cost {
+			continue
+		}
+
+		visited[Step{path.point, path.dir}] = path.cost
+
+		if path.point == end {
+			// fmt.Println("Found end: ", path.cost)
+			if path.cost == lowestCost {
+				fmt.Println("Adding path", path.cost)
+				solutions = append(solutions, path)
+			} else if lowestCost == -1 || path.cost < lowestCost {
+				fmt.Println("Adding path", path.cost)
+				solutions = []Path2{path}
+				lowestCost = path.cost
+			}
+		}
+
+		for _, d := range []int{-1, 0, 1} {
+			direction := Direction((int(path.dir) + d) % 4)
+			if direction == -1 {
+				direction = 3
+			}
+			point := pointAt(path.point, direction)
+			if maze[point.y][point.x] == WALL {
+				continue
+			}
+			newSteps := append(path.steps, path.point)
+			newPath := Path2{point, direction, path.cost + 1, newSteps}
+			if d != 0 {
+				newPath.cost += 1000
+			}
+			queue = append(queue, newPath)
+		}
+	}
+	printGridPaths(maze, solutions)
+	return countUniquePoints(solutions)
+}
+
+func printGridPaths(maze [][]rune, solutions []Path2) {
+
+	for _, path := range solutions {
+		for _, s := range path.steps {
+			if maze[s.y][s.x] == WALL {
+				panic("Invalid path")
+			}
+			maze[s.y][s.x] = 'O'
+		}
+	}
+	printGrid(maze)
+}
+
+func countUniquePoints(paths []Path2) int {
+	fmt.Println("paths:", len(paths))
+	uniquePoints := make(map[Point]bool)
+	for _, path := range paths {
+		for _, point := range path.steps {
+			uniquePoints[point] = true
+		}
+	}
+
+	return len(uniquePoints)
 }
 
 func findStartEnd(maze [][]rune) (start, end Point) {
@@ -120,6 +193,12 @@ func findStartEnd(maze [][]rune) (start, end Point) {
 		}
 	}
 	return
+}
+
+func printGrid(grid [][]rune) {
+	for _, row := range grid {
+		fmt.Println(string(row))
+	}
 }
 
 func pointAt(p Point, d Direction) Point {
