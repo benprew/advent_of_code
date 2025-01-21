@@ -39,9 +39,10 @@ func main() {
 }
 
 func printGrid(points []Point, gridSize int) {
+	wallMap := makeWallMap(points)
 	for y := range gridSize {
 		for x := range gridSize {
-			if contains(points, Point{x, y}) {
+			if contains(wallMap, Point{x, y}) {
 				fmt.Print("#")
 			} else {
 				fmt.Print(".")
@@ -51,13 +52,9 @@ func printGrid(points []Point, gridSize int) {
 	}
 }
 
-func contains(points []Point, p Point) bool {
-	for _, point := range points {
-		if point == p {
-			return true
-		}
-	}
-	return false
+func contains(wallMap map[Point]bool, p Point) bool {
+	v, ok := wallMap[p]
+	return ok && v
 }
 
 func solve(walls []Point, gridSize int) (sum int) {
@@ -65,6 +62,7 @@ func solve(walls []Point, gridSize int) (sum int) {
 	lowestCost := -1
 	start, end := Point{0, 0}, Point{gridSize - 1, gridSize - 1}
 	queue := []Path{{start, 0}}
+	wallMap := makeWallMap(walls)
 
 	for len(queue) > 0 {
 		path := queue[0]
@@ -87,7 +85,7 @@ func solve(walls []Point, gridSize int) (sum int) {
 
 		for _, d := range dirs {
 			point := pointAdd(path.point, d)
-			if contains(walls, point) || isOutside(point, gridSize) {
+			if contains(wallMap, point) || isOutside(point, gridSize) {
 				continue
 			}
 			newPath := Path{point, path.cost + 1}
@@ -100,6 +98,14 @@ func solve(walls []Point, gridSize int) (sum int) {
 	// }
 	// printGrid(visits, gridSize)
 	return lowestCost
+}
+
+func makeWallMap(walls []Point) (wallMap map[Point]bool) {
+	wallMap = make(map[Point]bool, 0)
+	for _, wall := range walls {
+		wallMap[wall] = true
+	}
+	return
 }
 
 func solve2(walls []Point, gridSize int) (sum int) {
