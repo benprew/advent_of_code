@@ -19,3 +19,18 @@ func TestPart1(t *testing.T) {
 		t.Errorf("Expected %d, got %d", want, got)
 	}
 }
+
+func TestPart2(t *testing.T) {
+	file, err := os.Open("test.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	towels, patterns := parse(file)
+
+	want := 16
+	if got := solve2(towels, patterns); got != want {
+		t.Errorf("Expected %d, got %d", want, got)
+	}
+}

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var cache = make(map[string]bool)
+var cache = make(map[string]int)
 
 func main() {
 	filename := "input.txt"
@@ -42,7 +42,7 @@ func solve(towels []string, patterns []string) (validDesigns int) {
 
 	for _, p := range patterns {
 		fmt.Println("pattern:", p)
-		if isValidDesign(towelMap, maxLen, p) {
+		if isValidDesign(towelMap, maxLen, p) > 0 {
 			validDesigns++
 		} else {
 			fmt.Println("invalid:", p)
@@ -52,12 +52,27 @@ func solve(towels []string, patterns []string) (validDesigns int) {
 }
 
 func solve2(towels []string, patterns []string) (validDesigns int) {
+	fmt.Println("towels:", towels)
+
+	towelMap := make(map[string]bool)
+	maxLen := 0
+
+	for _, t := range towels {
+		towelMap[t] = true
+		if len(t) > maxLen {
+			maxLen = len(t)
+		}
+	}
+
+	for _, p := range patterns {
+		validDesigns += isValidDesign(towelMap, maxLen, p)
+	}
 	return
 }
 
-func isValidDesign(towelMap map[string]bool, maxTowelLen int, pattern string) bool {
+func isValidDesign(towelMap map[string]bool, maxTowelLen int, pattern string) int {
 	if pattern == "" {
-		return true
+		return 1
 	}
 	ret, ok := cache[pattern]
 	if ok {
@@ -66,15 +81,15 @@ func isValidDesign(towelMap map[string]bool, maxTowelLen int, pattern string) bo
 
 	l := min(len(pattern), maxTowelLen)
 
+	numValid := 0
 	for i := range l + 1 {
 		t := pattern[:i]
-		if towelMap[t] && isValidDesign(towelMap, maxTowelLen, pattern[i:]) {
-			cache[pattern] = true
-			return true
+		if towelMap[t] {
+			numValid += isValidDesign(towelMap, maxTowelLen, pattern[i:])
 		}
 	}
-	cache[pattern] = false
-	return false
+	cache[pattern] = numValid
+	return numValid
 }
 
 func parse(file io.Reader) (towels []string, patterns []string) {
