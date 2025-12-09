@@ -44,19 +44,12 @@ func solve(grid []string) (total int) {
 			bales := 0
 			for _, xr := range Xrange {
 				for _, yr := range Yrange {
-					if xr == yr && yr == 0 {
-						continue
-					}
-					// if x == 9 && y == 1 && y+yr >= 0 && x+xr >= 0 && y+yr < len(grid) && x+xr < len(line) {
-					// 	fmt.Println(xr, yr, string(grid[y+yr][x+xr]))
-					// }
-
 					if y+yr >= 0 && x+xr >= 0 && y+yr < len(grid) && x+xr < len(line) && grid[y+yr][x+xr] == '@' {
 						bales++
 					}
 				}
 			}
-			if bales < 4 {
+			if bales <= 4 {
 				fmt.Println(x, y, bales)
 				total++
 			}
@@ -76,23 +69,14 @@ func solve2(grid []string) (total int) {
 			bales := 0
 			for _, xr := range Xrange {
 				for _, yr := range Yrange {
-					if xr == yr && yr == 0 {
-						continue
-					}
-					// if x == 9 && y == 1 && y+yr >= 0 && x+xr >= 0 && y+yr < len(grid) && x+xr < len(line) {
-					// 	fmt.Println(xr, yr, string(grid[y+yr][x+xr]))
-					// }
-
 					if y+yr >= 0 && x+xr >= 0 && y+yr < len(grid) && x+xr < len(line) && grid[y+yr][x+xr] == '@' {
 						bales++
 					}
 				}
 			}
-			if bales < 4 {
-				// fmt.Println(x, y, bales)
+			if bales <= 4 {
 				s := grid[y]
-				s = s[:x] + "x" + s[x+1:]
-				grid[y] = s
+				grid[y] = s[:x] + "x" + s[x+1:]
 				total++
 			}
 		}
