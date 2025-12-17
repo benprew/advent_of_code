@@ -1,11 +1,11 @@
 package main
 
 import (
+	"advent_of_code/utils"
 	"bufio"
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -14,7 +14,6 @@ func main() {
 	if len(os.Args) > 1 {
 		filename = os.Args[1]
 	}
-	fmt.Println(filename)
 	file, err := os.Open(filename)
 	if err != nil {
 		panic(err)
@@ -22,9 +21,10 @@ func main() {
 	defer file.Close()
 
 	items := parse(file)
+	file.Seek(0, 0)
 
 	fmt.Println("Part 1:", solve(items))
-	fmt.Println("Part 2:", solve2(parse2(file)))
+	fmt.Println("Part 2:", solve(parse2(file)))
 }
 
 func solve(items [][]string) (total int) {
@@ -40,19 +40,14 @@ func solve(items [][]string) (total int) {
 				break
 			}
 			if op == "*" {
-				colTotal *= toi(n)
+				colTotal *= utils.Toi(n)
 			} else {
-				colTotal += toi(n)
+				colTotal += utils.Toi(n)
 			}
 		}
 		total += colTotal
 	}
 
-	return
-}
-
-func solve2(lines []string) (total int) {
-	items := transpose2(lines)
 	return
 }
 
@@ -66,13 +61,15 @@ func parse(file io.Reader) (items [][]string) {
 	return transpose(items)
 }
 
-func parse2(file io.Reader) (lines []string) {
+func parse2(file io.Reader) (items [][]string) {
 	scanner := bufio.NewScanner(file)
+	lines := []string{}
 
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		line := scanner.Text()
+		lines = append(lines, line)
 	}
-	return
+	return transpose2(lines)
 }
 
 func transpose(in [][]string) (out [][]string) {
@@ -100,16 +97,31 @@ func transpose2(in []string) (out [][]string) {
 		return
 	}
 
-	for i := range len(in[0]) {
+	var nums []string
 
-	}
-	return
-}
+	// fmt.Println(in)
 
-func toi(s string) int {
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
+	length := len(in[0])
+
+	for i := range length {
+		x := length - i - 1
+		var sb strings.Builder
+
+		for y := range in {
+			sb.WriteString(string(in[y][x]))
+		}
+		str := sb.String()
+		fmt.Println(str, nums)
+		last := string(str[len(str)-1])
+		if last == "*" || last == "+" {
+			nums = append(nums, str[:len(str)-1])
+			nums = append(nums, last)
+			out = append(out, strings.Fields(strings.Join(nums, " ")))
+			nums = []string{}
+		} else {
+			nums = append(nums, str)
+		}
 	}
-	return i
+	fmt.Println(out)
+	return out
 }
